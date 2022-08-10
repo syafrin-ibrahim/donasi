@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/domain"
+	"github.com/syafrin-ibrahim/donasi.git/internal/package/helper"
 )
 
 type UserService interface {
@@ -26,22 +27,25 @@ func (h *userHandler) Register(ctx *gin.Context) {
 
 	err := ctx.ShouldBind(&input)
 	if err != nil {
-		ctx.JSON(400, gin.H{
-			"message": err.Error(),
-		})
+		response := helper.APIResponse("Register account failed", http.StatusUnprocessableEntity, "error", err.Error())
+		ctx.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}
 
-	user, err := h.userService.Register(input)
+	newUser, err := h.userService.Register(input)
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"message": err.Error(),
-		})
+
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{
+			"errors": errors,
+		}
+		response := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", errorMessage)
+		ctx.JSON(http.StatusInternalServerError, response)
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{
-		"message": "ok",
-		"data":    user,
-	})
+	responseFormat := domain.FormatUserResponse(newUser, "asdfghjkkkkkkkkkkkkkkkk")
+
+	response := helper.APIResponse("Account has been registered", http.StatusOK, "success", responseFormat)
+	ctx.JSON(http.StatusOK, response)
 
 }

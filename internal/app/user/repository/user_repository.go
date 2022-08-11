@@ -22,3 +22,11 @@ func (usr *userDBRepository) Create(user domain.User) (domain.User, error) {
 	}
 	return user, nil
 }
+func (usr *userDBRepository) FindByEmail(email string) (domain.User, error) {
+	var user domain.User
+	err := usr.db.Where("email = ?", email).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}

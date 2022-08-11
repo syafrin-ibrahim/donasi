@@ -9,6 +9,7 @@ import (
 
 type User interface {
 	Create(user domain.User) (domain.User, error)
+	FindByEmail(email string) (domain.User, error)
 }
 
 type userService struct {
@@ -36,5 +37,22 @@ func (s *userService) Register(input domain.UserParam) (domain.User, error) {
 		return user, errors.New("failed create user")
 	}
 
-	return user, err
+	return user, nil
+}
+
+func (s *userService) Login(user domain.LoginParam) (domain.User, error) {
+	newUser, err := s.userRepo.FindByEmail(user.Email)
+	if err != nil {
+		return newUser, err
+	}
+
+	if newUser.ID == 0 {
+		return newUser, errors.New("No User found in that email")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(newUser.PasswordHash), []byte(user.Password))
+	if err != nil {
+		return newUser, err
+	}
+	return newUser, nil
 }

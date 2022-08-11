@@ -26,6 +26,7 @@ func main() {
 	route := gin.Default()
 
 	route.POST("register", userHandler.Register)
+	route.POST("/login", userHandler.Login)
 
 	route.Run(":8080")
 

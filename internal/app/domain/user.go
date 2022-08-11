@@ -29,6 +29,11 @@ type UserResponse struct {
 	Token      string `json:"token"`
 }
 
+type LoginParam struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func FormatUserResponse(user User, token string) UserResponse {
 	format := UserResponse{
 		ID:         user.ID,

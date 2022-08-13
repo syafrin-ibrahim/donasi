@@ -30,8 +30,11 @@ type UserResponse struct {
 }
 
 type LoginParam struct {
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+}
+type CheckEmailInput struct {
+	Email string `json:"email" binding:"required,email"`
 }
 
 func FormatUserResponse(user User, token string) UserResponse {

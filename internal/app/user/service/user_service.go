@@ -56,3 +56,17 @@ func (s *userService) Login(user domain.LoginParam) (domain.User, error) {
 	}
 	return newUser, nil
 }
+
+func (s *userService) IsEmailAvailable(input domain.CheckEmailInput) (bool, error) {
+	email := input.Email
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return false, err
+	}
+
+	if user.ID == 0 {
+		return true, nil
+	}
+	return false, nil
+}

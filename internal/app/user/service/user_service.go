@@ -10,6 +10,8 @@ import (
 type User interface {
 	Create(user domain.User) (domain.User, error)
 	FindByEmail(email string) (domain.User, error)
+	FindByID(ID int) (domain.User, error)
+	Update(user domain.User) (domain.User, error)
 }
 
 type userService struct {
@@ -69,4 +71,19 @@ func (s *userService) IsEmailAvailable(input domain.CheckEmailInput) (bool, erro
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *userService) SaveAvatar(ID int, fileLocation string) (domain.User, error) {
+	user, err := s.userRepo.FindByID(ID)
+
+	if err != nil {
+		return user, err
+	}
+	user.AvatarFileName = fileLocation
+	updatedUser, err := s.userRepo.Update(user)
+
+	if err != nil {
+		return updatedUser, err
+	}
+	return updatedUser, nil
 }

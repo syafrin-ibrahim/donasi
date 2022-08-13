@@ -28,6 +28,7 @@ func main() {
 	route.POST("register", userHandler.Register)
 	route.POST("/login", userHandler.Login)
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
+	route.POST("/avatars", userHandler.UploadAvatar)
 
 	route.Run(":8080")
 

@@ -30,3 +30,19 @@ func (usr *userDBRepository) FindByEmail(email string) (domain.User, error) {
 	}
 	return user, nil
 }
+func (usr *userDBRepository) FindByID(ID int) (domain.User, error) {
+	var user domain.User
+	err := usr.db.Where("ID = ?", ID).Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (usr *userDBRepository) Update(user domain.User) (domain.User, error) {
+	err := usr.db.Save(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}

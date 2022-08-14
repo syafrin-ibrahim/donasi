@@ -7,6 +7,7 @@ import (
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/repository"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/service"
+	"github.com/syafrin-ibrahim/donasi.git/internal/package/middleware"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -21,7 +22,8 @@ func main() {
 
 	userRepo := repository.NewUserDBRepository(db)
 	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserhandler(userService)
+	auth := middleware.NewServiceMiddleware()
+	userHandler := handler.NewUserhandler(userService, auth)
 
 	route := gin.Default()
 

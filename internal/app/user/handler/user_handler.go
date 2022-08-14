@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/domain"
 	"github.com/syafrin-ibrahim/donasi.git/internal/package/helper"
+	"github.com/syafrin-ibrahim/donasi.git/internal/package/middleware"
 )
 
 type UserService interface {
@@ -18,11 +19,13 @@ type UserService interface {
 
 type userHandler struct {
 	userService UserService
+	authService middleware.Service
 }
 
-func NewUserhandler(service UserService) *userHandler {
+func NewUserhandler(service UserService, auth middleware.Service) *userHandler {
 	return &userHandler{
 		userService: service,
+		authService: auth,
 	}
 }
 
@@ -47,8 +50,16 @@ func (h *userHandler) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
-
-	responseFormat := domain.FormatUserResponse(newUser, "asdfghjkkkkkkkkkkkkkkkk")
+	token, err := h.authService.GenerateToken(newUser.ID)
+	if err != nil {
+		errorMessage := gin.H{
+			"errors": err.Error(),
+		}
+		response := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", errorMessage)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	responseFormat := domain.FormatUserResponse(newUser, token)
 
 	response := helper.APIResponse("Account has been registered", http.StatusOK, "success", responseFormat)
 	ctx.JSON(http.StatusOK, response)
@@ -76,8 +87,17 @@ func (h *userHandler) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
+	token, err := h.authService.GenerateToken(user.ID)
+	if err != nil {
+		errorMessage := gin.H{
+			"errors": err.Error(),
+		}
+		response := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", errorMessage)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
 
-	responseFormat := domain.FormatUserResponse(user, "asdfghjkkkkkkkkkkkkkkkk")
+	responseFormat := domain.FormatUserResponse(user, token)
 
 	response := helper.APIResponse("SUccess Login", http.StatusOK, "success", responseFormat)
 	ctx.JSON(http.StatusOK, response)
@@ -118,12 +138,6 @@ func (h *userHandler) CheckEmailAvailability(ctx *gin.Context) {
 }
 
 func (h *userHandler) UploadAvatar(ctx *gin.Context) {
-	//input dari user
-	//simpan gambarnya di folder images
-	//di service kita panggil repository
-	//dapatkan jwt (sementara hardcode, seakan user yang login = 1)
-	//repo ambil data user yang id = 1
-	// repo update data user simpan lokasi file
 
 	file, err := ctx.FormFile("avatar")
 

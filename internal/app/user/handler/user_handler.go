@@ -15,6 +15,7 @@ type UserService interface {
 	Login(input domain.LoginParam) (domain.User, error)
 	IsEmailAvailable(input domain.CheckEmailInput) (bool, error)
 	SaveAvatar(ID int, fileLocation string) (domain.User, error)
+	GetUserByID(ID int) (domain.User, error)
 }
 
 type userHandler struct {
@@ -149,7 +150,8 @@ func (h *userHandler) UploadAvatar(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	userID := 1
+	currentUser := ctx.MustGet("currentUser").(domain.User)
+	userID := currentUser.ID
 	path := fmt.Sprintf("internal/app/images/%d-%s", userID, file.Filename)
 
 	err = ctx.SaveUploadedFile(file, path)

@@ -87,3 +87,15 @@ func (s *userService) SaveAvatar(ID int, fileLocation string) (domain.User, erro
 	}
 	return updatedUser, nil
 }
+
+func (s *userService) GetUserByID(ID int) (domain.User, error) {
+	user, err := s.userRepo.FindByID(ID)
+
+	if err != nil {
+		return user, err
+	}
+	if user.ID == 0 {
+		return user, errors.New("No User found with this ID")
+	}
+	return user, nil
+}

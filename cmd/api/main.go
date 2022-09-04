@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	campaign "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/repository"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/repository"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/service"
@@ -22,6 +24,14 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	campaign := campaign.NewCampaignDBRepository(db)
+	onecampaigns, err := campaign.FindByUserID(4)
+
+	for _, newcampaign := range onecampaigns {
+
+		fmt.Println(newcampaign.Name)
 	}
 
 	userRepo := repository.NewUserDBRepository(db)

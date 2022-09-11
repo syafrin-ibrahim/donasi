@@ -15,6 +15,7 @@ type Campaign struct {
 	Slug             string    `json:"slug"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"update_at"`
+	CampaignImages   []CampaignImage
 }
 
 type CampaignImage struct {

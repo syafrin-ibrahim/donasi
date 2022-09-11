@@ -3,7 +3,7 @@ package service
 import "github.com/syafrin-ibrahim/donasi.git/internal/app/domain"
 
 type Campaign interface {
-	FIndAll() ([]domain.Campaign, error)
+	FindAll() ([]domain.Campaign, error)
 	FindByUserID(userID int) ([]domain.Campaign, error)
 }
 type campaignService struct {
@@ -16,4 +16,18 @@ func NewCampaignService(camp Campaign) *campaignService {
 	}
 }
 
-//func (s *campaignService)()
+func (s *campaignService) FindCampaigns(userID int) ([]domain.Campaign, error) {
+	if userID != 0 {
+		campaigns, err := s.campaignRepo.FindByUserID(userID)
+		if err != nil {
+			return campaigns, err
+		}
+		return campaigns, nil
+	}
+
+	campaigns, err := s.campaignRepo.FindAll()
+	if err != nil {
+		return campaigns, err
+	}
+	return campaigns, nil
+}

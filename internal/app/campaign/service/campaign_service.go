@@ -16,7 +16,7 @@ func NewCampaignService(camp Campaign) *campaignService {
 	}
 }
 
-func (s *campaignService) FindCampaigns(userID int) ([]domain.Campaign, error) {
+func (s *campaignService) GetCampaigns(userID int) ([]domain.Campaign, error) {
 	if userID != 0 {
 		campaigns, err := s.campaignRepo.FindByUserID(userID)
 		if err != nil {

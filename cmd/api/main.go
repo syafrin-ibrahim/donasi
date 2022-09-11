@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	campaignHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/handler"
 	campaign "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/repository"
 	campaignService "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/service"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
@@ -27,23 +27,26 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	//repository
 	campaignDB := campaign.NewCampaignDBRepository(db)
-	service := campaignService.NewCampaignService(campaignDB)
-
-	onecampaigns, err := service.FindCampaigns(0)
-
-	for _, newcampaign := range onecampaigns {
-		//if len(newcampaign.CampaignImages) > 0 {
-		fmt.Println(newcampaign.Name)
-		//fmt.Println(newcampaign.CampaignImages[0].FileName)
-
-		//}
-	}
-
 	userRepo := repository.NewUserDBRepository(db)
+
+	// for _, newcampaign := range onecampaigns {
+	// 	//if len(newcampaign.CampaignImages) > 0 {
+	// 	fmt.Println(newcampaign.Name)
+	// 	//fmt.Println(newcampaign.CampaignImages[0].FileName)
+
+	// 	//}
+	// }
+
+	//service
 	userService := userService.NewUserService(userRepo)
+	camapaignService := campaignService.NewCampaignService(campaignDB)
 	auth := middleware.NewServiceMiddleware()
+
+	//handler
 	userHandler := handler.NewUserhandler(userService, auth)
+	campaignHandler := campaignHandler.NewCampaignHandler(camapaignService)
 
 	route := gin.Default()
 
@@ -51,6 +54,7 @@ func main() {
 	route.POST("/login", userHandler.Login)
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	route.POST("/avatars", authMiddleware(auth, userService), userHandler.UploadAvatar)
+	route.GET("/campaigns", campaignHandler.GetCampaigns)
 
 	route.Run(":8080")
 

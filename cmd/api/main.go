@@ -49,7 +49,7 @@ func main() {
 	campaignHandler := campaignHandler.NewCampaignHandler(camapaignService)
 
 	route := gin.Default()
-
+	route.Static("/images", "./internal/app/images")
 	route.POST("register", userHandler.Register)
 	route.POST("/login", userHandler.Login)
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)

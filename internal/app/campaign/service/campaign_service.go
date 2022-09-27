@@ -5,6 +5,7 @@ import "github.com/syafrin-ibrahim/donasi.git/internal/app/domain"
 type Campaign interface {
 	FindAll() ([]domain.Campaign, error)
 	FindByUserID(userID int) ([]domain.Campaign, error)
+	FindByID(ID int) (domain.Campaign, error)
 }
 type campaignService struct {
 	campaignRepo Campaign
@@ -30,4 +31,14 @@ func (s *campaignService) GetCampaigns(userID int) ([]domain.Campaign, error) {
 		return campaigns, err
 	}
 	return campaigns, nil
+}
+
+func (s *campaignService) GetCampaignByID(param domain.InputParam) (domain.Campaign, error) {
+	campaign, err := s.campaignRepo.FindByID(param.ID)
+	if err != nil {
+		return campaign, err
+	}
+
+	return campaign, nil
+
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -28,6 +29,9 @@ func main() {
 	}
 
 	//repository
+	camp := campaign.NewCampaignDBRepository(db)
+	new, err := camp.FindByID(1)
+	fmt.Println(new)
 	campaignDB := campaign.NewCampaignDBRepository(db)
 	userRepo := repository.NewUserDBRepository(db)
 
@@ -55,6 +59,7 @@ func main() {
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	route.POST("/avatars", authMiddleware(auth, userService), userHandler.UploadAvatar)
 	route.GET("/campaigns", campaignHandler.GetCampaigns)
+	route.GET("/campaign/:id", campaignHandler.GetCampaign)
 
 	route.Run(":8080")
 

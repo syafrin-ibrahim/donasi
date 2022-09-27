@@ -11,6 +11,7 @@ import (
 
 type CampaignService interface {
 	GetCampaigns(userID int) ([]domain.Campaign, error)
+	GetCampaignByID(param domain.InputParam) (domain.Campaign, error)
 }
 
 type campaignHandler struct {
@@ -35,5 +36,24 @@ func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
 	}
 
 	response := helper.APIResponse("List of Campaigns", http.StatusOK, "success", domain.FormatCampaigns(campaigns))
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
+	var param domain.InputParam
+	err := ctx.ShouldBindUri(&param)
+	if err != nil {
+		response := helper.APIResponse("Error to get detail of Campaign", http.StatusBadRequest, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	campaign, err := h.campaignService.GetCampaignByID(param)
+	if err != nil {
+		response := helper.APIResponse("Error to get param input", http.StatusBadRequest, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := helper.APIResponse("Campaign Detail", http.StatusOK, "success", domain.FormatDetailCampaign(campaign))
 	ctx.JSON(http.StatusOK, response)
 }

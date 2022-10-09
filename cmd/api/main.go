@@ -48,6 +48,20 @@ func main() {
 	camapaignService := campaignService.NewCampaignService(campaignDB)
 	auth := middleware.NewServiceMiddleware()
 
+	// campaign := domain.CreateCampaignParam{}
+	// campaign.Name = "Dana Talangan"
+	// campaign.ShortDescription = "short talangan"
+	// campaign.Description = "long talangan"
+	// campaign.GoalAmount = 1000000000
+	// campaign.Perks = "satu, dua, tiga"
+	// newUser, _ := userService.GetUserByID(3)
+	// campaign.User = newUser
+
+	// _, err = camapaignService.CreateCampaign(campaign)
+	// if err != nil {
+	// 	log.Fatal(err.Error())
+	// }
+
 	//handler
 	userHandler := handler.NewUserhandler(userService, auth)
 	campaignHandler := campaignHandler.NewCampaignHandler(camapaignService)
@@ -59,6 +73,7 @@ func main() {
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	route.POST("/avatars", authMiddleware(auth, userService), userHandler.UploadAvatar)
 	route.GET("/campaigns", campaignHandler.GetCampaigns)
+	route.POST("/campaigns", authMiddleware(auth, userService), campaignHandler.CreateCampaign)
 	route.GET("/campaign/:id", campaignHandler.GetCampaign)
 
 	route.Run(":8080")

@@ -12,6 +12,7 @@ import (
 type CampaignService interface {
 	GetCampaigns(userID int) ([]domain.Campaign, error)
 	GetCampaignByID(param domain.InputParam) (domain.Campaign, error)
+	CreateCampaign(param domain.CreateCampaignParam) (domain.Campaign, error)
 }
 
 type campaignHandler struct {
@@ -55,5 +56,32 @@ func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
 		return
 	}
 	response := helper.APIResponse("Campaign Detail", http.StatusOK, "success", domain.FormatDetailCampaign(campaign))
+	ctx.JSON(http.StatusOK, response)
+}
+func (h *campaignHandler) CreateCampaign(ctx *gin.Context) {
+	var input domain.CreateCampaignParam
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Failed to Create Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	currentUser := ctx.MustGet("currentUser").(domain.User)
+	input.User = currentUser
+
+	newCampaign, err := h.campaignService.CreateCampaign(input)
+
+	if err != nil {
+		response := helper.APIResponse("Failed to Create Campaign", http.StatusUnprocessableEntity, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("Success to Create Campaing", http.StatusOK, "success", domain.FormatCampaign(newCampaign))
 	ctx.JSON(http.StatusOK, response)
 }

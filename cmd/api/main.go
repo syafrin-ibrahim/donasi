@@ -73,8 +73,9 @@ func main() {
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	route.POST("/avatars", authMiddleware(auth, userService), userHandler.UploadAvatar)
 	route.GET("/campaigns", campaignHandler.GetCampaigns)
-	route.POST("/campaigns", authMiddleware(auth, userService), campaignHandler.CreateCampaign)
+	route.POST("/campaign", authMiddleware(auth, userService), campaignHandler.CreateCampaign)
 	route.GET("/campaign/:id", campaignHandler.GetCampaign)
+	route.PUT("/campaign/:id", authMiddleware(auth, userService), campaignHandler.UpdateCampaign)
 
 	route.Run(":8080")
 

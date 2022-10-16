@@ -11,8 +11,9 @@ import (
 
 type CampaignService interface {
 	GetCampaigns(userID int) ([]domain.Campaign, error)
-	GetCampaignByID(param domain.InputParam) (domain.Campaign, error)
+	GetCampaignByID(param domain.InputIDParam) (domain.Campaign, error)
 	CreateCampaign(param domain.CreateCampaignParam) (domain.Campaign, error)
+	UpdateCampaign(inputID domain.InputIDParam, param domain.CreateCampaignParam) (domain.Campaign, error)
 }
 
 type campaignHandler struct {
@@ -41,7 +42,7 @@ func (h *campaignHandler) GetCampaigns(ctx *gin.Context) {
 }
 
 func (h *campaignHandler) GetCampaign(ctx *gin.Context) {
-	var param domain.InputParam
+	var param domain.InputIDParam
 	err := ctx.ShouldBindUri(&param)
 	if err != nil {
 		response := helper.APIResponse("Error to get detail of Campaign", http.StatusBadRequest, "error", nil)
@@ -84,4 +85,41 @@ func (h *campaignHandler) CreateCampaign(ctx *gin.Context) {
 
 	response := helper.APIResponse("Success to Create Campaing", http.StatusOK, "success", domain.FormatCampaign(newCampaign))
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) UpdateCampaign(ctx *gin.Context) {
+	var inputID domain.InputIDParam
+	err := ctx.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.APIResponse("Failed to get Id Campaign", http.StatusBadRequest, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var inputCampaign domain.CreateCampaignParam
+
+	err = ctx.ShouldBindJSON(&inputCampaign)
+
+	if err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Failed to update Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		ctx.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	currentUser := ctx.MustGet("currentUser").(domain.User)
+	inputCampaign.User = currentUser
+	updatedCampaign, err := h.campaignService.UpdateCampaign(inputID, inputCampaign)
+
+	if err != nil {
+		response := helper.APIResponse("Failed update Campaign", http.StatusUnprocessableEntity, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("Success to Update Campaing", http.StatusOK, "success", domain.FormatCampaign(updatedCampaign))
+	ctx.JSON(http.StatusOK, response)
+
 }

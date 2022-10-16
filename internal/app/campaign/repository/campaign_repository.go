@@ -5,8 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type Campaign interface {
-}
+// type Campaign interface {
+// }
 type campaignDBRepository struct {
 	db *gorm.DB
 }
@@ -17,7 +17,7 @@ func NewCampaignDBRepository(db *gorm.DB) *campaignDBRepository {
 	}
 }
 
-func (r campaignDBRepository) FindAll() ([]domain.Campaign, error) {
+func (r *campaignDBRepository) FindAll() ([]domain.Campaign, error) {
 	var campaigns []domain.Campaign
 	err := r.db.Preload("CampaignImages", "campaign_images.is_primary = 1").Find(&campaigns).Error
 	if err != nil {
@@ -46,6 +46,14 @@ func (r *campaignDBRepository) FindByID(ID int) (domain.Campaign, error) {
 
 func (r *campaignDBRepository) Save(campaign domain.Campaign) (domain.Campaign, error) {
 	err := r.db.Create(&campaign).Error
+	if err != nil {
+		return campaign, err
+	}
+	return campaign, nil
+}
+
+func (r *campaignDBRepository) Update(campaign domain.Campaign) (domain.Campaign, error) {
+	err := r.db.Save(&campaign).Error
 	if err != nil {
 		return campaign, err
 	}

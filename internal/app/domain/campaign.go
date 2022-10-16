@@ -41,7 +41,7 @@ type CampaignFormatter struct {
 	Slug             string `json:"slug"`
 }
 
-type InputParam struct {
+type InputIDParam struct {
 	ID int `uri:"id" binding:"required"`
 }
 

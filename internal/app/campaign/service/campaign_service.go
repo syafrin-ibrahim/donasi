@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gosimple/slug"
@@ -12,6 +13,7 @@ type Campaign interface {
 	FindByUserID(userID int) ([]domain.Campaign, error)
 	FindByID(ID int) (domain.Campaign, error)
 	Save(campaign domain.Campaign) (domain.Campaign, error)
+	Update(campaign domain.Campaign) (domain.Campaign, error)
 }
 type campaignService struct {
 	campaignRepo Campaign
@@ -39,7 +41,7 @@ func (s *campaignService) GetCampaigns(userID int) ([]domain.Campaign, error) {
 	return campaigns, nil
 }
 
-func (s *campaignService) GetCampaignByID(param domain.InputParam) (domain.Campaign, error) {
+func (s *campaignService) GetCampaignByID(param domain.InputIDParam) (domain.Campaign, error) {
 	campaign, err := s.campaignRepo.FindByID(param.ID)
 	if err != nil {
 		return campaign, err
@@ -63,5 +65,29 @@ func (s *campaignService) CreateCampaign(param domain.CreateCampaignParam) (doma
 	if err != nil {
 		return newCampaign, err
 	}
+	return newCampaign, nil
+}
+
+func (s *campaignService) UpdateCampaign(inputID domain.InputIDParam, param domain.CreateCampaignParam) (domain.Campaign, error) {
+	campaign, err := s.campaignRepo.FindByID(inputID.ID)
+
+	if err != nil {
+		return campaign, err
+	}
+
+	if campaign.UserID != param.User.ID {
+		return campaign, errors.New("Not an owner of the campaign")
+	}
+	campaign.Name = param.Name
+	campaign.ShortDescription = param.ShortDescription
+	campaign.Description = param.Description
+	campaign.Perks = param.Perks
+	campaign.GoalAmount = param.GoalAmount
+
+	newCampaign, err := s.campaignRepo.Update(campaign)
+	if err != nil {
+		return newCampaign, err
+	}
+
 	return newCampaign, nil
 }

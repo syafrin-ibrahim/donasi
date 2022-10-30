@@ -14,6 +14,8 @@ type Campaign interface {
 	FindByID(ID int) (domain.Campaign, error)
 	Save(campaign domain.Campaign) (domain.Campaign, error)
 	Update(campaign domain.Campaign) (domain.Campaign, error)
+	CreateImage(campaignImage domain.CampaignImage) (domain.CampaignImage, error)
+	MarkAllImageIsPrimary(campaignID int) (bool, error)
 }
 type campaignService struct {
 	campaignRepo Campaign
@@ -90,4 +92,35 @@ func (s *campaignService) UpdateCampaign(inputID domain.InputIDParam, param doma
 	}
 
 	return newCampaign, nil
+}
+
+func (s *campaignService) SaveCampaignImage(image domain.CreateCampaignImageParam, fileLocation string) (domain.CampaignImage, error) {
+	campaign, err := s.campaignRepo.FindByID(image.CampaignID)
+	if err != nil {
+		return domain.CampaignImage{}, err
+	}
+	if campaign.UserID != image.User.ID {
+		return domain.CampaignImage{}, errors.New("Not an Owner of the campaign")
+	}
+	isPrimary := 0
+	if *image.IsPrimary {
+		isPrimary = 1
+		_, err := s.campaignRepo.MarkAllImageIsPrimary(image.CampaignID)
+		if err != nil {
+			return domain.CampaignImage{}, err
+		}
+
+	}
+
+	campaignImage := domain.CampaignImage{}
+	campaignImage.CampaignID = image.CampaignID
+	campaignImage.IsPrimary = isPrimary
+	campaignImage.FileName = fileLocation
+
+	newCampaignImage, err := s.campaignRepo.CreateImage(campaignImage)
+	if err != nil {
+		return newCampaignImage, err
+	}
+	return newCampaignImage, nil
+
 }

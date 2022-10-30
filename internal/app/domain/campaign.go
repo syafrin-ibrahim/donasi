@@ -105,6 +105,11 @@ type CreateCampaignParam struct {
 	Perks            string `json:"perks" binding:"required"`
 	User             User
 }
+type CreateCampaignImageParam struct {
+	CampaignID int   `form:"campaign_id" binding:"required"`
+	IsPrimary  *bool `form:"is_primary"`
+	User       User
+}
 
 func FormatDetailCampaign(campaign Campaign) CampaigndetailFormatter {
 	campaignDetailFormatter := CampaigndetailFormatter{}

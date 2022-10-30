@@ -76,6 +76,7 @@ func main() {
 	route.POST("/campaign", authMiddleware(auth, userService), campaignHandler.CreateCampaign)
 	route.GET("/campaign/:id", campaignHandler.GetCampaign)
 	route.PUT("/campaign/:id", authMiddleware(auth, userService), campaignHandler.UpdateCampaign)
+	route.POST("/campaign-images", authMiddleware(auth, userService), campaignHandler.UploadImage)
 
 	route.Run(":8080")
 

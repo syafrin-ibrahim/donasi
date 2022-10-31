@@ -11,6 +11,9 @@ import (
 	campaignHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/handler"
 	campaign "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/repository"
 	campaignService "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/service"
+	transactionHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/transaction/handler"
+	transaction "github.com/syafrin-ibrahim/donasi.git/internal/app/transaction/repository"
+	transactionService "github.com/syafrin-ibrahim/donasi.git/internal/app/transaction/service"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/repository"
 	userService "github.com/syafrin-ibrahim/donasi.git/internal/app/user/service"
@@ -34,6 +37,7 @@ func main() {
 	fmt.Println(new)
 	campaignDB := campaign.NewCampaignDBRepository(db)
 	userRepo := repository.NewUserDBRepository(db)
+	transactionRepo := transaction.NewTransactionDBRepository(db)
 
 	// for _, newcampaign := range onecampaigns {
 	// 	//if len(newcampaign.CampaignImages) > 0 {
@@ -46,8 +50,18 @@ func main() {
 	//service
 	userService := userService.NewUserService(userRepo)
 	camapaignService := campaignService.NewCampaignService(campaignDB)
+	transactionService := transactionService.NewTransactionService(transactionRepo, campaignDB)
 	auth := middleware.NewServiceMiddleware()
 
+	// newUser := domain.Transactionparam{
+	// 	ID: 1,
+	// 	User: domain.User{
+	// 		ID:   3,
+	// 		Name: "caca",
+	// 	},
+	// }
+	// user, err := transactionService.GetTransactionByCampaignID(newUser)
+	// fmt.Println(user)
 	// campaign := domain.CreateCampaignParam{}
 	// campaign.Name = "Dana Talangan"
 	// campaign.ShortDescription = "short talangan"
@@ -65,6 +79,7 @@ func main() {
 	//handler
 	userHandler := handler.NewUserhandler(userService, auth)
 	campaignHandler := campaignHandler.NewCampaignHandler(camapaignService)
+	transactionHandler := transactionHandler.NewTransactionHandler(transactionService)
 
 	route := gin.Default()
 	route.Static("/images", "./internal/app/images")
@@ -77,6 +92,7 @@ func main() {
 	route.GET("/campaign/:id", campaignHandler.GetCampaign)
 	route.PUT("/campaign/:id", authMiddleware(auth, userService), campaignHandler.UpdateCampaign)
 	route.POST("/campaign-images", authMiddleware(auth, userService), campaignHandler.UploadImage)
+	route.GET("/campaigns/:id/transactions", authMiddleware(auth, userService), transactionHandler.GetCampaignTransaction)
 
 	route.Run(":8080")
 

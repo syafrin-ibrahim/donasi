@@ -9,6 +9,7 @@ import (
 
 type Transaction interface {
 	GetByCampaignID(campaignID int) ([]domain.Transaction, error)
+	GetUserByID(userID int) ([]domain.Transaction, error)
 }
 
 type transactionService struct {
@@ -38,4 +39,15 @@ func (s *transactionService) GetTransactionByCampaignID(campaignID domain.Transa
 	}
 
 	return transactions, nil
+}
+
+func (s *transactionService) GetTransactonByuserID(userID int) ([]domain.Transaction, error) {
+	transactions, err := s.TransactionRepo.GetUserByID(userID)
+
+	if err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
+
 }

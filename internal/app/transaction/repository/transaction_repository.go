@@ -26,3 +26,13 @@ func (r *transactionDBRepository) GetByCampaignID(campaignID int) ([]domain.Tran
 
 	return transaction, nil
 }
+func (r *transactionDBRepository) GetUserByID(userID int) ([]domain.Transaction, error) {
+	var transactions []domain.Transaction
+
+	err := r.db.Preload("Campaign.CampaignImages", "campaign_images.is_primary = 1").Order("id desc").Where("user_id = ?", userID).Find(&transactions).Error
+
+	if err != nil {
+		return transactions, err
+	}
+	return transactions, nil
+}

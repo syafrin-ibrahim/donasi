@@ -10,6 +10,7 @@ import (
 
 type TransactionService interface {
 	GetTransactionByCampaignID(campaignID domain.Transactionparam) ([]domain.Transaction, error)
+	GetTransactonByuserID(userID int) ([]domain.Transaction, error)
 }
 
 type TransactionHandler struct {
@@ -44,4 +45,20 @@ func (h *TransactionHandler) GetCampaignTransaction(ctx *gin.Context) {
 
 	response := helper.APIResponse("Transaction Campaign", http.StatusOK, "success", domain.FormatTransactionList(transactions))
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (h *TransactionHandler) GetUserTransactions(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(domain.User)
+	userID := currentUser.ID
+
+	transactions, err := h.transactionService.GetTransactonByuserID(userID)
+	if err != nil {
+		response := helper.APIResponse("Error to get user transaction", http.StatusBadRequest, "error", nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("User Transactions", http.StatusOK, "success", domain.FormatUserTransactionList(transactions))
+	ctx.JSON(http.StatusOK, response)
+
 }

@@ -93,6 +93,7 @@ func main() {
 	route.PUT("/campaign/:id", authMiddleware(auth, userService), campaignHandler.UpdateCampaign)
 	route.POST("/campaign-images", authMiddleware(auth, userService), campaignHandler.UploadImage)
 	route.GET("/campaigns/:id/transactions", authMiddleware(auth, userService), transactionHandler.GetCampaignTransaction)
+	route.GET("/transactions", authMiddleware(auth, userService), transactionHandler.GetUserTransactions)
 
 	route.Run(":8080")
 

@@ -46,3 +46,11 @@ func (usr *userDBRepository) Update(user domain.User) (domain.User, error) {
 	}
 	return user, nil
 }
+func (usr *userDBRepository) FindAll() ([]domain.User, error) {
+	var users []domain.User
+	err := usr.db.Find(&users).Error
+	if err != nil {
+		return users, err
+	}
+	return users, nil
+}

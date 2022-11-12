@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	campaignHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/handler"
 	campaign "github.com/syafrin-ibrahim/donasi.git/internal/app/campaign/repository"
@@ -17,6 +19,7 @@ import (
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/repository"
 	userService "github.com/syafrin-ibrahim/donasi.git/internal/app/user/service"
+	webHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/web/hander"
 	"github.com/syafrin-ibrahim/donasi.git/internal/package/helper"
 	"github.com/syafrin-ibrahim/donasi.git/internal/package/middleware"
 	"gorm.io/driver/mysql"
@@ -81,8 +84,17 @@ func main() {
 	campaignHandler := campaignHandler.NewCampaignHandler(camapaignService)
 	transactionHandler := transactionHandler.NewTransactionHandler(transactionService)
 
+	//web
+	userWebHandler := webHandler.NewUserHandler(userService)
+
 	route := gin.Default()
+	//route.LoadHTMLGlob("../../internal/app/web/templates/**/*")
+	route.HTMLRender = loadTemplates("internal/app/web/templates")
 	route.Static("/images", "./internal/app/images")
+	route.Static("/css", "./internal/app/web/assets/css")
+	route.Static("/js", "./internal/app/web/assets/js")
+	route.Static("/webfonts", "./internal/app/web/assets/webfonts")
+
 	route.POST("register", userHandler.Register)
 	route.POST("/login", userHandler.Login)
 	route.POST("/email_checkers", userHandler.CheckEmailAvailability)
@@ -94,6 +106,9 @@ func main() {
 	route.POST("/campaign-images", authMiddleware(auth, userService), campaignHandler.UploadImage)
 	route.GET("/campaigns/:id/transactions", authMiddleware(auth, userService), transactionHandler.GetCampaignTransaction)
 	route.GET("/transactions", authMiddleware(auth, userService), transactionHandler.GetUserTransactions)
+
+	//web
+	route.GET("/users/", userWebHandler.Index)
 
 	route.Run(":8080")
 
@@ -139,4 +154,27 @@ func authMiddleware(auth middleware.Service, user handler.UserService) gin.Handl
 		ctx.Set("currentUser", user)
 
 	}
+}
+
+func loadTemplates(templatesDir string) multitemplate.Renderer {
+	r := multitemplate.NewRenderer()
+
+	layouts, err := filepath.Glob(templatesDir + "/layouts/*")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	includes, err := filepath.Glob(templatesDir + "/**/*")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Generate our templates map from our layouts/ and includes/ directories
+	for _, include := range includes {
+		layoutCopy := make([]string, len(layouts))
+		copy(layoutCopy, layouts)
+		files := append(layoutCopy, include)
+		r.AddFromFiles(filepath.Base(include), files...)
+	}
+	return r
 }

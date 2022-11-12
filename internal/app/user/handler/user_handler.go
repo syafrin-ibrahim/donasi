@@ -16,6 +16,7 @@ type UserService interface {
 	IsEmailAvailable(input domain.CheckEmailInput) (bool, error)
 	SaveAvatar(ID int, fileLocation string) (domain.User, error)
 	GetUserByID(ID int) (domain.User, error)
+	GetAllUser() ([]domain.User, error)
 }
 
 type userHandler struct {

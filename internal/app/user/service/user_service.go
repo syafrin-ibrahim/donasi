@@ -12,6 +12,7 @@ type User interface {
 	FindByEmail(email string) (domain.User, error)
 	FindByID(ID int) (domain.User, error)
 	Update(user domain.User) (domain.User, error)
+	FindAll() ([]domain.User, error)
 }
 
 type userService struct {
@@ -98,4 +99,13 @@ func (s *userService) GetUserByID(ID int) (domain.User, error) {
 		return user, errors.New("No User found with this ID")
 	}
 	return user, nil
+}
+func (s *userService) GetAllUser() ([]domain.User, error) {
+	//var users []domain.User
+	users, err := s.userRepo.FindAll()
+
+	if err != nil {
+		return users, err
+	}
+	return users, nil
 }

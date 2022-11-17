@@ -109,3 +109,19 @@ func (s *userService) GetAllUser() ([]domain.User, error) {
 	}
 	return users, nil
 }
+func (s *userService) UpdateUser(input domain.FormUserUpdate) (domain.User, error) {
+	user, err := s.userRepo.FindByID(input.ID)
+	if err != nil {
+		return user, err
+	}
+
+	user.Name = input.Name
+	user.Email = input.Email
+	user.Occupation = input.Occupation
+	updatedUser, err := s.userRepo.Update(user)
+	if err != nil {
+		return updatedUser, err
+	}
+
+	return updatedUser, nil
+}

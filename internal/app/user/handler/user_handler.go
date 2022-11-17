@@ -17,6 +17,7 @@ type UserService interface {
 	SaveAvatar(ID int, fileLocation string) (domain.User, error)
 	GetUserByID(ID int) (domain.User, error)
 	GetAllUser() ([]domain.User, error)
+	UpdateUser(input domain.FormUserUpdate) (domain.User, error)
 }
 
 type userHandler struct {

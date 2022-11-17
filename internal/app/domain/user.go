@@ -37,6 +37,21 @@ type CheckEmailInput struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
+type FormUserInput struct {
+	Name       string `form:"name" binding:"required"`
+	Email      string `form:"email" binding:"required,email"`
+	Occupation string `form:"occupation" binding:"required"`
+	Password   string `form:"password" binding:"required"`
+	Error      error
+}
+type FormUserUpdate struct {
+	ID         int
+	Name       string `form:"name" binding:"required"`
+	Email      string `form:"email" binding:"required,email"`
+	Occupation string `form:"occupation" binding:"required"`
+	Error      error
+}
+
 func FormatUserResponse(user User, token string) UserResponse {
 	format := UserResponse{
 		ID:         user.ID,

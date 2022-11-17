@@ -19,7 +19,7 @@ import (
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/app/user/repository"
 	userService "github.com/syafrin-ibrahim/donasi.git/internal/app/user/service"
-	webHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/web/hander"
+	webHandler "github.com/syafrin-ibrahim/donasi.git/internal/app/web/handler"
 	"github.com/syafrin-ibrahim/donasi.git/internal/package/helper"
 	"github.com/syafrin-ibrahim/donasi.git/internal/package/middleware"
 	"gorm.io/driver/mysql"
@@ -89,8 +89,8 @@ func main() {
 
 	route := gin.Default()
 	//route.LoadHTMLGlob("../../internal/app/web/templates/**/*")
-	route.HTMLRender = loadTemplates("internal/app/web/templates")
 	route.Static("/images", "./internal/app/images")
+	route.HTMLRender = loadTemplates("internal/app/web/templates")
 	route.Static("/css", "./internal/app/web/assets/css")
 	route.Static("/js", "./internal/app/web/assets/js")
 	route.Static("/webfonts", "./internal/app/web/assets/webfonts")
@@ -109,6 +109,10 @@ func main() {
 
 	//web
 	route.GET("/users/", userWebHandler.Index)
+	route.GET("/users/new", userWebHandler.New)
+	route.POST("/users", userWebHandler.Create)
+	route.GET("/users/edit/:id", userWebHandler.Edit)
+	route.POST("/users/update/:id", userWebHandler.Update)
 
 	route.Run(":8080")
 
